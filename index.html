@@ -944,26 +944,30 @@
     const skirtR = 33;
     const unused = value == null;
     const v = unused ? 1 : value;
-    const step = 30;
-    const rot = -(v - 1) * step;
+    // Real Deluxe Reverb skirts: numbers 1–10 run counterclockwise,
+    // and the setting is the number at 12 o'clock. 1–10 span a typical
+    // 300° pot travel, so when 10 is at the top, 1 sits upper-left and
+    // 9 sits upper-right. Clockwise rotation brings higher numbers up.
+    const step = 300 / 9;
     let nums = "";
     for (let i = 1; i <= 10; i++) {
-      const deg = (i - 1) * step + rot - 90;
+      const deg = -90 - (i - v) * step;
       const a = (deg * Math.PI) / 180;
       const rr = skirtR - 6.5;
       const x = c + Math.cos(a) * rr;
       const y = c + Math.sin(a) * rr;
       const on = !unused && Math.abs(i - v) < 0.01;
-      nums += `<text x="${x.toFixed(2)}" y="${y.toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${i === 10 ? 6.5 : 7.5}" font-weight="700" fill="${on ? "#fff" : "#c9c9c9"}" transform="rotate(${(deg + 90).toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)})">${i}</text>`;
+      nums += `<text x="${x.toFixed(2)}" y="${y.toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${i === 10 ? 6.5 : 7.5}" font-weight="700" fill="${on ? "#fff" : "#e8e8e8"}" transform="rotate(${(deg + 90).toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)})">${i}</text>`;
     }
     return `<svg viewBox="-4 -10 ${size + 8} ${size + 12}" aria-hidden="true">
       <polygon points="${c - 4},-8 ${c + 4},-8 ${c},-2" fill="#f2f2f2"/>
-      <circle cx="${c}" cy="${c}" r="${skirtR}" fill="#151515" stroke="#3a3a3a" stroke-width="1.5"/>
+      <circle class="knob-body" cx="${c}" cy="${c}" r="${skirtR}" fill="#151515" stroke="#3a3a3a" stroke-width="1.5"/>
       <circle cx="${c}" cy="${c}" r="${skirtR - 13}" fill="none" stroke="#2a2a2a"/>
       ${nums}
-      <circle cx="${c}" cy="${c}" r="16" fill="#0c0c0c" stroke="#4a4a4a"/>
-      <circle cx="${c}" cy="${c}" r="11" fill="none" stroke="#262626"/>
-      <ellipse cx="${c - 4}" cy="${c - 5}" rx="5" ry="2.5" fill="#fff" opacity=".08"/>
+      <circle cx="${c}" cy="${c}" r="15.5" fill="#8e8e8e" stroke="#cfcfcf" stroke-width="1"/>
+      <circle cx="${c}" cy="${c}" r="13.2" fill="#c8c8c8"/>
+      <circle cx="${c}" cy="${c}" r="11" fill="#a7a7a7"/>
+      <ellipse cx="${c - 3.5}" cy="${c - 4.5}" rx="6" ry="3.2" fill="#fff" opacity=".4"/>
     </svg>`;
   }
 
@@ -978,7 +982,7 @@
     const y2 = c + Math.sin(a) * 20;
     return `<svg viewBox="-12 -2 ${size + 24} ${size + 18}" width="76" height="80" aria-hidden="true">
       <circle cx="${c}" cy="${c}" r="27" fill="#2a2a2a" stroke="#555" stroke-dasharray="1.5 1.5"/>
-      <circle cx="${c}" cy="${c}" r="22" fill="#111" stroke="#3c3c3c"/>
+      <circle class="knob-body" cx="${c}" cy="${c}" r="22" fill="#111" stroke="#3c3c3c"/>
       <line x1="${c}" y1="${c}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
       <circle cx="${(c + Math.cos(minA) * 31).toFixed(2)}" cy="${(c + Math.sin(minA) * 31).toFixed(2)}" r="1.8" fill="#ddd"/>
       <circle cx="${(c + Math.cos(maxA) * 31).toFixed(2)}" cy="${(c + Math.sin(maxA) * 31).toFixed(2)}" r="1.8" fill="#ddd"/>
@@ -1026,11 +1030,33 @@
   function attachDrag(el, opts, render) {
     let startY = 0;
     let startV = 0;
+    let startAng = 0;
+    let mode = null;
+    const travel = opts.max - opts.min;
+    const degreesPerValue = 300 / travel;
+
+    const angleOf = (ev, cx, cy) => Math.atan2(ev.clientY - cy, ev.clientX - cx);
+
     const onMove = (ev) => {
       if (opts.getUnused && opts.getUnused()) return;
-      const y = ev.clientY;
-      const delta = (startY - y) / 4; // up increases
-      const next = snap(startV + delta * (opts.step || 1), opts.min, opts.max, opts.step || 1);
+      const body = el.querySelector(".knob-body");
+      const r = (body || el).getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      let dAng = angleOf(ev, cx, cy) - startAng;
+      while (dAng > Math.PI) dAng -= 2 * Math.PI;
+      while (dAng < -Math.PI) dAng += 2 * Math.PI;
+      const dVert = startY - ev.clientY;
+      if (!mode) {
+        if (Math.abs(dAng) > (8 * Math.PI) / 180) mode = "angle";
+        else if (Math.abs(dVert) > 6) mode = "vert";
+        else return;
+      }
+      // Clockwise (positive screen atan2) or up increases the value.
+      const raw = mode === "angle"
+        ? startV + (dAng * 180 / Math.PI) / degreesPerValue
+        : startV + (dVert / 4) * (opts.step || 1);
+      const next = snap(raw, opts.min, opts.max, opts.step || 1);
       if (next !== opts.get()) {
         opts.set(next);
         render();
@@ -1041,13 +1067,20 @@
       el.removeEventListener("pointermove", onMove);
       el.removeEventListener("pointerup", onUp);
       el.removeEventListener("pointercancel", onUp);
+      mode = null;
     };
     el.addEventListener("pointerdown", (ev) => {
       if (opts.getUnused && opts.getUnused()) return;
       ev.preventDefault();
       el.setPointerCapture(ev.pointerId);
+      const body = el.querySelector(".knob-body");
+      const r = (body || el).getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
       startY = ev.clientY;
+      startAng = angleOf(ev, cx, cy);
       startV = opts.get() == null ? opts.min : opts.get();
+      mode = null;
       el.addEventListener("pointermove", onMove);
       el.addEventListener("pointerup", onUp);
       el.addEventListener("pointercancel", onUp);
