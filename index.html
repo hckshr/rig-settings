@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14110e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2314110e'/%3E%3Ccircle cx='16' cy='16' r='9' fill='%23111111' stroke='%23c4a574' stroke-width='1.5'/%3E%3Cline x1='16' y1='16' x2='16' y2='8.5' stroke='%23efe6d4' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<meta name="description" content="Starting-point guitar rig settings for a Telecaster into a Fender Deluxe Reverb, with a graphic EQ, analog delay, and spring or plate reverb.">
+<title>Deluxe Reverb Rig</title>
+<style>
+  :root {
+    --bg: #14110e;
+    --bg-2: #1c1814;
+    --paper: #efe6d4;
+    --paper-2: #e4d8c0;
+    --ink: #1c1712;
+    --muted: #6e655b;
+    --line: #d4c7ae;
+    --accent: #c4a574;
+    --accent-2: #e8c992;
+    --amp: #141414;
+    --amp-edge: #3a3a3a;
+    --amp-label: #d8d2c6;
+    --amp-dim: #6a655c;
+    --ok: #3f7d5c;
+    --warn: #b56a2b;
+    --danger: #a33d2c;
+    --eq: #3c4636;
+    --eq-face: #cfc6a8;
+    --delay: #2b2d30;
+    --reverb: #2c3a44;
+    --reverb-plate: #3a3238;
+    --shadow: 0 10px 28px rgba(0,0,0,.35);
+    --radius: 16px;
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--paper);
+    font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
+    line-height: 1.45;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    min-height: 100dvh;
+    background-image:
+      radial-gradient(1200px 500px at 50% -10%, rgba(196,165,116,.12), transparent 60%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  a { color: var(--accent-2); }
+  button, select, input { font: inherit; }
+  h1, h2, h3 { font-weight: 700; letter-spacing: .02em; }
+
+  .wrap {
+    width: min(1080px, 100%);
+    margin: 0 auto;
+    padding: calc(24px + var(--sat)) calc(18px + var(--sar)) calc(120px + var(--sab)) calc(18px + var(--sal));
+  }
+  header.hero {
+    margin-bottom: 22px;
+  }
+  header.hero .kicker {
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+  }
+  header.hero h1 {
+    font-family: Palatino, "Palatino Linotype", "Iowan Old Style", Georgia, serif;
+    font-size: clamp(32px, 6vw, 54px);
+    line-height: 1.05;
+    margin: 0 0 10px;
+    font-weight: 700;
+  }
+  header.hero p {
+    max-width: 62ch;
+    color: #d7cbb6;
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .guitar-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin: 22px 0 14px;
+  }
+  .guitar-row .lbl {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+  .chip {
+    border: 1px solid #3a332c;
+    background: #221e1a;
+    color: var(--paper);
+    border-radius: 999px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 650;
+  }
+  .chip[aria-pressed="true"], .chip.active {
+    background: var(--paper);
+    color: var(--ink);
+    border-color: var(--paper);
+  }
+  .chip.custom {
+    border-style: dashed;
+    border-color: var(--accent);
+  }
+
+  .presets {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 2px 12px;
+    margin: 0 -4px 8px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .presets::-webkit-scrollbar { height: 6px; }
+  .presets::-webkit-scrollbar-thumb { background: #3a332c; border-radius: 99px; }
+  .preset-card {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    width: min(220px, 78vw);
+    text-align: left;
+    border: 1px solid #3a332c;
+    background: #221e1a;
+    color: var(--paper);
+    border-radius: 14px;
+    padding: 12px 14px;
+    cursor: pointer;
+    min-height: 92px;
+  }
+  .preset-card:hover { border-color: var(--accent); }
+  .preset-card[aria-pressed="true"] {
+    background: var(--paper);
+    color: var(--ink);
+    border-color: var(--paper);
+  }
+  .preset-card .name { font-weight: 750; font-size: 15px; margin: 0 0 4px; }
+  .preset-card .vibe { font-size: 12.5px; opacity: .8; margin: 0; }
+  .preset-card[aria-pressed="true"] .vibe { opacity: .7; }
+
+  .chain {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin: 8px 0 16px;
+  }
+  .chain-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #221e1a;
+    border: 1px solid #3a332c;
+    border-radius: 12px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-weight: 650;
+  }
+  .chain-item.off { opacity: .45; }
+  .chain-item .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--ok);
+    box-shadow: 0 0 0 3px rgba(63,125,92,.25);
+  }
+  .chain-item.off .dot { background: #6a655c; box-shadow: none; }
+  .chain-arrow { color: #6a655c; font-size: 14px; }
+
+  .why {
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 22px;
+  }
+  .why h2 {
+    margin: 0 0 6px;
+    font-size: 13px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #7a5340;
+  }
+  .why p { margin: 0; font-size: 15.5px; }
+  .warn-banner {
+    margin-top: 10px;
+    color: #7a3d16;
+    background: #f3d9b8;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13.5px;
+    font-weight: 650;
+  }
+
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+
+  .gear {
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+  .gear .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .gear .title {
+    margin: 0;
+    font-size: 18px;
+    letter-spacing: .04em;
+  }
+  .gear .sub {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    opacity: .75;
+  }
+  .bypass {
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 750;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: #1b1b1b;
+    color: #eee;
+    min-height: 36px;
+  }
+  .bypass.on { background: #d7c07a; color: #1c1712; }
+  .gear.bypassed .pedal-face, .gear.bypassed .eq-face, .gear.bypassed .knob-row {
+    opacity: .45;
+    filter: grayscale(.3);
+  }
+
+  .gear.guitar { background: #2a221b; color: var(--paper); }
+  .gear.eq { background: var(--eq); color: var(--eq-face); }
+  .gear.delay { background: var(--delay); color: #f2f2f2; }
+  .gear.reverb { background: var(--reverb); color: #f2f2f2; }
+  .gear.reverb.plate { background: var(--reverb-plate); }
+  .gear.amp { background: var(--amp); color: var(--amp-label); border: 1px solid var(--amp-edge); }
+
+  .pickup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0 14px;
+  }
+  .blade {
+    display: flex;
+    background: #1a1612;
+    border: 2px solid #4a4036;
+    border-radius: 8px;
+    overflow: hidden;
+    width: min(320px, 100%);
+  }
+  .blade button {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    color: #cfc3b0;
+    padding: 12px 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .blade button[aria-pressed="true"] {
+    background: #d7c07a;
+    color: #1c1712;
+  }
+
+  .knob-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 6px;
+    justify-content: center;
+  }
+  .dial {
+    width: 92px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+    touch-action: none;
+    cursor: ns-resize;
+  }
+  .dial.unused { opacity: .38; }
+  .dial svg { display: block; width: 76px; height: 84px; }
+  .dial .val {
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 0;
+    min-height: 1.2em;
+  }
+  .dial .lab {
+    font-size: 10.5px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    opacity: .8;
+    font-weight: 700;
+  }
+
+  .eq-face {
+    background: var(--eq-face);
+    color: #2a2208;
+    border-radius: 12px;
+    padding: 10px 8px 8px;
+    overflow-x: auto;
+  }
+  .faders {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+    min-width: 300px;
+  }
+  .fader {
+    width: 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    touch-action: none;
+  }
+  .fader.level { width: 44px; margin-left: 8px; padding-left: 8px; border-left: 1px solid #4a3d10; }
+  .fader .flab { font-size: 10px; font-weight: 800; }
+  .fader .fval { font-size: 11px; font-weight: 700; }
+  .track {
+    position: relative;
+    width: 22px;
+    height: 140px;
+    background: #111;
+    border-radius: 4px;
+    cursor: ns-resize;
+  }
+  .track .ticks {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .cap {
+    position: absolute;
+    left: 50%;
+    width: 28px;
+    height: 16px;
+    margin-left: -14px;
+    margin-top: -8px;
+    background: #222;
+    border: 1px solid #000;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 #555;
+  }
+  .cap i {
+    display: block;
+    height: 2px;
+    background: #fff;
+    margin: 6px 3px 0;
+  }
+
+  .type-toggle {
+    display: flex;
+    background: #1b1b1b;
+    border-radius: 999px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .type-toggle button {
+    border: 0;
+    background: transparent;
+    color: #ddd;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 750;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .type-toggle button[aria-pressed="true"] {
+    background: #d7c07a;
+    color: #1c1712;
+  }
+
+  .channel-toggle {
+    display: flex;
+    background: #0c0c0c;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .channel-toggle button {
+    border: 0;
+    background: transparent;
+    color: var(--amp-label);
+    padding: 8px 14px;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .channel-toggle button[aria-pressed="true"] {
+    background: #d8d2c6;
+    color: #111;
+  }
+  .amp-channels { display: flex; flex-direction: column; gap: 12px; }
+  .amp-ch {
+    border: 1px solid #2e2e2e;
+    border-radius: 12px;
+    padding: 12px 8px 10px;
+  }
+  .amp-ch.unused { opacity: .55; }
+  .amp-ch .ch-name {
+    font-size: 11px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--amp-dim);
+    margin: 0 0 8px 8px;
+    font-weight: 700;
+  }
+  .amp-ch.active .ch-name { color: var(--amp-label); }
+
+  .notes {
+    margin-top: 28px;
+    color: #cfc3b0;
+    font-size: 14px;
+  }
+  .notes h2 { font-size: 16px; margin: 0 0 8px; color: var(--paper); }
+  .notes ul { margin: 0; padding-left: 18px; }
+  .notes li { margin: 0 0 8px; }
+  footer.site {
+    margin-top: 24px;
+    color: #8a8074;
+    font-size: 12.5px;
+  }
+
+  .dock {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px calc(14px + var(--sar)) calc(10px + var(--sab)) calc(14px + var(--sal));
+    background: linear-gradient(to top, rgba(20,17,14,.96), rgba(20,17,14,.92) 70%, transparent);
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    z-index: 20;
+  }
+  .dock button, .dock .status {
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    min-height: 42px;
+  }
+  .dock button {
+    border: 1px solid #4a4036;
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .dock button.ghost {
+    background: #221e1a;
+    color: var(--paper);
+  }
+  .dock button:disabled { opacity: .45; cursor: default; }
+  .dock .status {
+    color: #cfc3b0;
+    display: flex;
+    align-items: center;
+  }
+
+  dialog.save {
+    border: 0;
+    border-radius: 16px;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    width: min(420px, calc(100vw - 32px));
+    box-shadow: var(--shadow);
+  }
+  dialog.save::backdrop { background: rgba(0,0,0,.55); }
+  .save-box { padding: 18px; }
+  .save-box h2 { margin: 0 0 8px; font-size: 18px; }
+  .save-box input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #cfc3b0;
+    background: #fff;
+    margin: 8px 0 14px;
+  }
+  .save-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .save-actions button {
+    border-radius: 999px;
+    padding: 8px 14px;
+    border: 1px solid #cfc3b0;
+    background: #fff;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .save-actions button.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  .gear .head { flex-wrap: wrap; }
+  .channel-toggle { flex-shrink: 0; }
+
+  @media (min-width: 860px) {
+    .amp-channels { flex-direction: row; }
+    .amp-ch { flex: 1; }
+    .presets {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      overflow: visible;
+    }
+    .preset-card {
+      width: auto;
+      max-width: none;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <p class="kicker">Starting points · tweak by ear</p>
+      <h1>Deluxe Reverb Rig</h1>
+      <p>Pick a sound, then set a Telecaster, a Fender Deluxe Reverb, and a few common pedals to match. Knobs are live — drag them, save your own presets, and use this as a reference even if you don't have the whole chain in front of you.</p>
+    </header>
+
+    <div class="guitar-row">
+      <span class="lbl">Guitar</span>
+      <div id="guitar-picks"></div>
+    </div>
+
+    <div class="presets" id="presets" role="listbox" aria-label="Sound presets"></div>
+
+    <div class="chain" id="chain" aria-label="Signal chain"></div>
+
+    <section class="why">
+      <h2>Why this chain</h2>
+      <p id="why-text"></p>
+      <div class="warn-banner" id="stack-warn" hidden>You're stacking the amp's reverb with a reverb pedal. Turn one of them down.</div>
+    </section>
+
+    <div class="stack">
+      <section class="gear guitar" id="sec-guitar">
+        <div class="head">
+          <div>
+            <h2 class="title" id="guitar-title">Telecaster</h2>
+            <p class="sub">Pickup selector, volume, and tone</p>
+          </div>
+        </div>
+        <div class="pickup">
+          <div class="blade" id="pickup-switch" role="radiogroup" aria-label="Pickup selector"></div>
+        </div>
+        <div class="knob-row" id="guitar-knobs"></div>
+      </section>
+
+      <section class="gear eq" id="sec-eq">
+        <div class="head">
+          <div>
+            <h2 class="title">Graphic EQ</h2>
+            <p class="sub">7-band · 100 Hz–6.4 kHz · ±15 dB, plus Level</p>
+          </div>
+          <button class="bypass" id="eq-bypass" type="button">On</button>
+        </div>
+        <div class="eq-face" id="eq-face"></div>
+      </section>
+
+      <section class="gear delay" id="sec-delay">
+        <div class="head">
+          <div>
+            <h2 class="title">Analog delay</h2>
+            <p class="sub">Time, Mix, and Repeats — the three knobs most analog delays share. Clockwise is longer, louder, or more repeats.</p>
+          </div>
+          <button class="bypass" id="delay-bypass" type="button">On</button>
+        </div>
+        <div class="knob-row" id="delay-knobs"></div>
+      </section>
+
+      <section class="gear reverb" id="sec-reverb">
+        <div class="head">
+          <div>
+            <h2 class="title" id="reverb-title">Spring reverb</h2>
+            <p class="sub">Mix, Tone, and Decay — typical controls on a compact reverb pedal.</p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+            <div class="type-toggle" id="reverb-type" role="radiogroup" aria-label="Reverb type">
+              <button type="button" data-type="spring">Spring</button>
+              <button type="button" data-type="plate">Plate</button>
+            </div>
+            <button class="bypass" id="reverb-bypass" type="button">On</button>
+          </div>
+        </div>
+        <div class="knob-row" id="reverb-knobs"></div>
+      </section>
+
+      <section class="gear amp" id="sec-amp">
+        <div class="head">
+          <div>
+            <h2 class="title">Fender Deluxe Reverb</h2>
+            <p class="sub">Tone Master front panel · Input 1 · Reverb and tremolo (labeled Vibrato) are only on the Vibrato channel</p>
+          </div>
+          <div class="channel-toggle" id="channel-toggle" role="radiogroup" aria-label="Amp channel">
+            <button type="button" data-ch="normal">Normal</button>
+            <button type="button" data-ch="vibrato">Vibrato</button>
+          </div>
+        </div>
+        <div class="amp-channels">
+          <div class="amp-ch" id="ch-normal">
+            <div class="ch-name">Normal</div>
+            <div class="knob-row" id="normal-knobs"></div>
+          </div>
+          <div class="amp-ch" id="ch-vibrato">
+            <div class="ch-name">Vibrato</div>
+            <div class="knob-row" id="vibrato-knobs"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="notes">
+      <h2>Rules of thumb</h2>
+      <ul>
+        <li>Signal order is guitar → graphic EQ → analog delay → reverb pedal → amp. EQ shapes the dry tone first; delay repeats that tone; reverb goes last so the echoes sit in the same space.</li>
+        <li>The Deluxe Reverb's reverb and tremolo live only on the Vibrato channel. The Normal channel is dry, which is when a reverb pedal earns its keep. Don't stack the pedal with the amp's reverb.</li>
+        <li>Fender's tone stack cuts mids, so turning Treble and Bass up mostly adds lows and highs around them. A flatter starting point sits around Treble 2–3 and Bass 1–2. At high volume the amp's own breakup brings the mids back, which is why Treble 10 and Bass 1 can sound mid-forward.</li>
+        <li>Set the front-panel volume for the feel you want, then use the rear Output Power switch to set how loud the room gets. Input 1 is full sensitivity; Input 2 is a little quieter and darker (−6 dB).</li>
+        <li>A typical 7-band guitar EQ uses 100 Hz, 200 Hz, 400 Hz, 800 Hz, 1.6 kHz, 3.2 kHz, and 6.4 kHz, each ±15 dB, plus a Level slider with the same range. Prefer cutting a band over boosting it, and keep Level near unity unless you want a solo boost.</li>
+        <li>On an analog delay, Time sets the gap between repeats, Mix is how loud the echo is, and Repeats is how many times it comes back. High Repeats can take off on their own. Many analog delays top out around 300–600 ms, so the longest settings still aren't huge digital echoes.</li>
+        <li>Spring reverb is splashy and a little metallic — the Deluxe's own sound. Plate is smoother and denser, which is the sound the amp can't do. Mix is how much you hear, Tone is brighter clockwise, Decay is how long the tail lasts.</li>
+        <li>These are starting points. Every amp, speaker, guitar, and pedal differs, so finish by ear. A digital Deluxe may also respond a little differently from a vintage one.</li>
+      </ul>
+    </section>
+    <footer class="site">A public reference page. Custom presets stay in this browser only.</footer>
+  </div>
+
+  <div class="dock">
+    <span class="status" id="dirty-status">Preset</span>
+    <button type="button" class="ghost" id="btn-reset" disabled>Reset to preset</button>
+    <button type="button" id="btn-save">Save as custom</button>
+    <button type="button" class="ghost" id="btn-delete" hidden>Delete custom</button>
+  </div>
+
+  <dialog class="save" id="save-dialog">
+    <form class="save-box" method="dialog" id="save-form">
+      <h2>Save custom preset</h2>
+      <label for="save-name">Name</label>
+      <input id="save-name" name="name" maxlength="48" required placeholder="My lead sound" autocomplete="off">
+      <div class="save-actions">
+        <button type="button" id="save-cancel" value="cancel">Cancel</button>
+        <button class="primary" value="save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+<script>
+(function () {
+  const EQ_BANDS = ["100", "200", "400", "800", "1.6k", "3.2k", "6.4k"];
+  const STORAGE = "rig-settings.custom.v1";
+  const CLOCK_MIN = 7;
+  const CLOCK_MAX = 17;
+
+  const GUITARS = [
+    {
+      id: "telecaster",
+      name: "Telecaster",
+      pickups: [
+        { id: "bridge", label: "Bridge" },
+        { id: "middle", label: "Middle" },
+        { id: "neck", label: "Neck" }
+      ],
+      knobs: [
+        { id: "volume", label: "Volume", min: 1, max: 10, step: 0.5 },
+        { id: "tone", label: "Tone", min: 1, max: 10, step: 0.5 }
+      ]
+    }
+  ];
+
+  const PRESETS = [
+    {
+      id: "country-twang",
+      name: "Clean country twang",
+      vibe: "Bright, snappy, sits on top of a band.",
+      guitarId: "telecaster",
+      guitar: { pickup: "bridge", volume: 10, tone: 10 },
+      eq: { on: true, bands: [-4, -2, 0, 0, 2, 4, 1], level: 1 },
+      delay: { on: true, time: 9, mix: 11, repeats: 8 },
+      reverb: { on: true, type: "spring", mix: 10, tone: 12, decay: 10 },
+      amp: {
+        channel: "normal",
+        normal: { volume: 5, treble: 7, bass: 3 },
+        vibrato: null
+      },
+      why: "EQ first tightens the lows and adds snap, then a short slapback, then a little spring so the echoes sit in the same room. The Normal channel stays dry — it has no reverb of its own, which is why the pedal is last. If the slap gets smeared, turn the reverb Decay or Mix down."
+    },
+    {
+      id: "sparkly-clean",
+      name: "Sparkly clean",
+      vibe: "Classic blackface clean with a little room around it.",
+      guitarId: "telecaster",
+      guitar: { pickup: "middle", volume: 10, tone: 10 },
+      eq: { on: false, bands: [0, 0, 0, 0, 0, 0, 0], level: 0 },
+      delay: { on: false, time: 12, mix: 10, repeats: 8 },
+      reverb: { on: false, type: "spring", mix: 10, tone: 12, decay: 10 },
+      amp: {
+        channel: "vibrato",
+        normal: null,
+        vibrato: { volume: 3, treble: 6, bass: 4, reverb: 3, speed: null, intensity: null }
+      },
+      why: "Stays clean up to about 4 on the volume with single coils. Reverb and tremolo live on the Vibrato channel, so that's the channel for this sound. Leave the reverb pedal off so you aren't stacking two reverbs."
+    },
+    {
+      id: "edge",
+      name: "Edge of breakup",
+      vibe: "Clean until you dig in, then the notes start to growl.",
+      guitarId: "telecaster",
+      guitar: { pickup: "middle", volume: 10, tone: 8 },
+      eq: { on: false, bands: [0, 0, 0, 0, 0, 0, 0], level: 0 },
+      delay: { on: false, time: 12, mix: 10, repeats: 8 },
+      reverb: { on: false, type: "spring", mix: 10, tone: 12, decay: 10 },
+      amp: {
+        channel: "vibrato",
+        normal: null,
+        vibrato: { volume: 5, treble: 6, bass: 3, reverb: 2, speed: null, intensity: null }
+      },
+      why: "Volume 5 is right where this amp starts to break up when you pick harder. Bass stays at 3 so it doesn't get flubby. A little amp reverb, no pedals — the amp is the sound. Roll the guitar volume back to 6–7 for a punchy clean without touching the amp."
+    },
+    {
+      id: "crunch",
+      name: "Crunchy rhythm",
+      vibe: "Loud, mid-forward, crunchy when you dig in.",
+      guitarId: "telecaster",
+      guitar: { pickup: "bridge", volume: 10, tone: 10 },
+      eq: { on: false, bands: [0, 0, 0, 0, 0, 0, 0], level: 0 },
+      delay: { on: false, time: 12, mix: 10, repeats: 8 },
+      reverb: { on: false, type: "spring", mix: 10, tone: 12, decay: 10 },
+      amp: {
+        channel: "vibrato",
+        normal: null,
+        vibrato: { volume: 10, treble: 10, bass: 1, reverb: 2, speed: null, intensity: null }
+      },
+      why: "Bass on 1 keeps it tight at full volume. At high volume the amp's own breakup brings the mids back, which is why Treble 10 and Bass 1 sounds so mid-forward. If it gets harsh, drop Treble to 8 before touching anything else. Set the front-panel volume for this feel, then use the rear Output Power switch to tame the loudness in the room."
+    },
+    {
+      id: "surf",
+      name: "Surf drip",
+      vibe: "Wet, splashy spring reverb.",
+      guitarId: "telecaster",
+      guitar: { pickup: "bridge", volume: 10, tone: 10 },
+      eq: { on: false, bands: [0, 0, 0, 0, 0, 0, 0], level: 0 },
+      delay: { on: false, time: 12, mix: 10, repeats: 8 },
+      reverb: { on: false, type: "spring", mix: 10, tone: 12, decay: 10 },
+      amp: {
+        channel: "vibrato",
+        normal: null,
+        vibrato: { volume: 4, treble: 7, bass: 3, reverb: 7, speed: null, intensity: null }
+      },
+      why: "This is the amp's own spring, which is the right tool for surf. Reverb past 7 gets washy fast. Keep Bass low so the drip doesn't turn to mud. Leave the reverb pedal off, and pick hard near the bridge."
+    },
+    {
+      id: "tremolo",
+      name: "Swampy tremolo",
+      vibe: "Slow, deep throb for moody chords.",
+      guitarId: "telecaster",
+      guitar: { pickup: "neck", volume: 10, tone: 7 },
+      eq: { on: false, bands: [0, 0, 0, 0, 0, 0, 0], level: 0 },
+      delay: { on: false, time: 12, mix: 10, repeats: 8 },
+      reverb: { on: false, type: "spring", mix: 10, tone: 12, decay: 10 },
+      amp: {
+        channel: "vibrato",
+        normal: null,
+        vibrato: { volume: 4, treble: 5, bass: 4, reverb: 3, speed: 3, intensity: 7 }
+      },
+      why: "Tremolo — labeled Vibrato on a Deluxe Reverb — is only on this channel. Intensity 7 is a deep throb; Speed 3 is slow. For a faster pulse, try Speed 6–7 with Intensity 5. Let chords ring on the neck pickup."
+    },
+    {
+      id: "ambient-slap",
+      name: "Ambient slapback",
+      vibe: "A short echo with a smoother plate blooming behind it.",
+      guitarId: "telecaster",
+      guitar: { pickup: "neck", volume: 10, tone: 8 },
+      eq: { on: false, bands: [0, 0, 0, 0, 0, 0, 0], level: 0 },
+      delay: { on: true, time: 9, mix: 11, repeats: 8 },
+      reverb: { on: true, type: "plate", mix: 12, tone: 11, decay: 13 },
+      amp: {
+        channel: "normal",
+        normal: { volume: 4, treble: 6, bass: 4 },
+        vibrato: null
+      },
+      why: "Normal stays dry so the pedals do the space. A single short slap, then a plate — smoother and denser than spring, which is the sound the amp can't do. Reverb last so the echo sits in the plate. If it's harsh, turn Tone down before you decide; if the slap smears, lower Decay or Mix."
+    },
+    {
+      id: "lead",
+      name: "Lead",
+      vibe: "A mid boost so solos jump out, with a short echo halo.",
+      guitarId: "telecaster",
+      guitar: { pickup: "bridge", volume: 10, tone: 10 },
+      eq: { on: true, bands: [0, 0, 3, 6, 4, 0, -2], level: 3 },
+      delay: { on: true, time: 13, mix: 10, repeats: 10 },
+      reverb: { on: false, type: "plate", mix: 10, tone: 12, decay: 10 },
+      amp: {
+        channel: "vibrato",
+        normal: null,
+        vibrato: { volume: 10, treble: 10, bass: 1, reverb: 2, speed: null, intensity: null }
+      },
+      why: "EQ first for a mid-hump that cuts through the band, then a short, modest delay so the notes get a little tail. The amp is the same crunchy rhythm setting. Kick the EQ and delay on for the solo and off for rhythm. Pull 6.4 kHz down further if it gets fizzy, and leave the reverb pedal off so you aren't stacking tails."
+    }
+  ];
+
+  const state = {
+    guitarId: "telecaster",
+    guitar: { pickup: "bridge", volume: 10, tone: 10 },
+    eq: { on: false, bands: [0, 0, 0, 0, 0, 0, 0], level: 0 },
+    delay: { on: false, time: 12, mix: 10, repeats: 8 },
+    reverb: { on: false, type: "spring", mix: 10, tone: 12, decay: 10 },
+    amp: {
+      channel: "vibrato",
+      normal: { volume: 5, treble: 6, bass: 4 },
+      vibrato: { volume: 4, treble: 6, bass: 4, reverb: 2, speed: 1, intensity: 1 }
+    },
+    presetId: "country-twang",
+    dirty: false
+  };
+
+  function clone(v) { return JSON.parse(JSON.stringify(v)); }
+  function guitarById(id) { return GUITARS.find((g) => g.id === id) || GUITARS[0]; }
+  function builtInById(id) { return PRESETS.find((p) => p.id === id); }
+
+  function loadCustoms() {
+    try {
+      const raw = localStorage.getItem(STORAGE);
+      const list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list : [];
+    } catch {
+      return [];
+    }
+  }
+  function saveCustoms(list) {
+    localStorage.setItem(STORAGE, JSON.stringify(list));
+  }
+
+  function snapshotFromState() {
+    return {
+      guitarId: state.guitarId,
+      guitar: clone(state.guitar),
+      eq: clone(state.eq),
+      delay: clone(state.delay),
+      reverb: clone(state.reverb),
+      amp: clone(state.amp)
+    };
+  }
+
+  function applyPreset(p) {
+    state.guitarId = p.guitarId || "telecaster";
+    state.guitar = clone(p.guitar);
+    state.eq = clone(p.eq);
+    state.delay = clone(p.delay);
+    state.reverb = clone(p.reverb);
+    state.amp = {
+      channel: p.amp.channel,
+      normal: p.amp.normal ? clone(p.amp.normal) : { volume: 4, treble: 6, bass: 4 },
+      vibrato: p.amp.vibrato
+        ? {
+            volume: p.amp.vibrato.volume,
+            treble: p.amp.vibrato.treble,
+            bass: p.amp.vibrato.bass,
+            reverb: p.amp.vibrato.reverb,
+            speed: p.amp.vibrato.speed,
+            intensity: p.amp.vibrato.intensity
+          }
+        : { volume: 4, treble: 6, bass: 4, reverb: 1, speed: null, intensity: null }
+    };
+    // Keep unused-channel values present for switching, but remember unused flags via preset when resetting.
+    state._unusedNormal = !p.amp.normal;
+    state._unusedVibrato = !p.amp.vibrato;
+    if (p.amp.vibrato && p.amp.vibrato.speed == null && p.amp.vibrato.intensity == null) {
+      state.amp.vibrato.speed = null;
+      state.amp.vibrato.intensity = null;
+    }
+    state.presetId = p.id;
+    state.dirty = false;
+    state._why = p.why || "";
+    state._vibe = p.vibe || "";
+  }
+
+  function allPresets() {
+    return PRESETS.concat(loadCustoms().map((c) => ({ ...c, custom: true })));
+  }
+
+  function currentPreset() {
+    return allPresets().find((p) => p.id === state.presetId);
+  }
+
+  function markDirty() {
+    state.dirty = true;
+    syncChrome();
+  }
+
+  function clockLabel(h, minL, maxL) {
+    minL = minL || "MIN";
+    maxL = maxL || "MAX";
+    if (h <= CLOCK_MIN + 0.05) return minL;
+    if (h >= CLOCK_MAX - 0.05) return maxL;
+    const rounded = Math.round(h * 2) / 2;
+    if (rounded === 12) return "noon";
+    const hh = rounded > 12 ? rounded - 12 : rounded;
+    const text = Number.isInteger(hh) ? String(hh) : String(hh);
+    return text + " o'clock";
+  }
+
+  function ampLabel(v) {
+    if (v == null) return "–";
+    return Number.isInteger(v) ? String(v) : String(v);
+  }
+
+  function dbLabel(n) {
+    return n > 0 ? "+" + n : String(n);
+  }
+
+  // ---------- SVG knobs ----------
+  function skirtKnobSVG(value) {
+    const size = 76;
+    const c = size / 2;
+    const skirtR = 33;
+    const unused = value == null;
+    const v = unused ? 1 : value;
+    const step = 30;
+    const rot = -(v - 1) * step;
+    let nums = "";
+    for (let i = 1; i <= 10; i++) {
+      const deg = (i - 1) * step + rot - 90;
+      const a = (deg * Math.PI) / 180;
+      const rr = skirtR - 6.5;
+      const x = c + Math.cos(a) * rr;
+      const y = c + Math.sin(a) * rr;
+      const on = !unused && Math.abs(i - v) < 0.01;
+      nums += `<text x="${x.toFixed(2)}" y="${y.toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${i === 10 ? 6.5 : 7.5}" font-weight="700" fill="${on ? "#fff" : "#c9c9c9"}" transform="rotate(${(deg + 90).toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)})">${i}</text>`;
+    }
+    return `<svg viewBox="-4 -10 ${size + 8} ${size + 12}" aria-hidden="true">
+      <polygon points="${c - 4},-8 ${c + 4},-8 ${c},-2" fill="#f2f2f2"/>
+      <circle cx="${c}" cy="${c}" r="${skirtR}" fill="#151515" stroke="#3a3a3a" stroke-width="1.5"/>
+      <circle cx="${c}" cy="${c}" r="${skirtR - 13}" fill="none" stroke="#2a2a2a"/>
+      ${nums}
+      <circle cx="${c}" cy="${c}" r="16" fill="#0c0c0c" stroke="#4a4a4a"/>
+      <circle cx="${c}" cy="${c}" r="11" fill="none" stroke="#262626"/>
+      <ellipse cx="${c - 4}" cy="${c - 5}" rx="5" ry="2.5" fill="#fff" opacity=".08"/>
+    </svg>`;
+  }
+
+  function pedalKnobSVG(clock, minL, maxL) {
+    const size = 64;
+    const c = size / 2;
+    const deg = (clock - 12) * 30;
+    const a = ((deg - 90) * Math.PI) / 180;
+    const minA = ((-150 - 90) * Math.PI) / 180;
+    const maxA = ((150 - 90) * Math.PI) / 180;
+    const x2 = c + Math.cos(a) * 20;
+    const y2 = c + Math.sin(a) * 20;
+    return `<svg viewBox="-12 -2 ${size + 24} ${size + 18}" width="76" height="80" aria-hidden="true">
+      <circle cx="${c}" cy="${c}" r="27" fill="#2a2a2a" stroke="#555" stroke-dasharray="1.5 1.5"/>
+      <circle cx="${c}" cy="${c}" r="22" fill="#111" stroke="#3c3c3c"/>
+      <line x1="${c}" y1="${c}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="${(c + Math.cos(minA) * 31).toFixed(2)}" cy="${(c + Math.sin(minA) * 31).toFixed(2)}" r="1.8" fill="#ddd"/>
+      <circle cx="${(c + Math.cos(maxA) * 31).toFixed(2)}" cy="${(c + Math.sin(maxA) * 31).toFixed(2)}" r="1.8" fill="#ddd"/>
+      <text x="${(c + Math.cos(minA) * 31).toFixed(2)}" y="${(c + Math.sin(minA) * 31 + 10).toFixed(2)}" text-anchor="middle" font-size="7" font-weight="700" fill="#ddd">${minL || "MIN"}</text>
+      <text x="${(c + Math.cos(maxA) * 31).toFixed(2)}" y="${(c + Math.sin(maxA) * 31 + 10).toFixed(2)}" text-anchor="middle" font-size="7" font-weight="700" fill="#ddd">${maxL || "MAX"}</text>
+    </svg>`;
+  }
+
+  function makeDial(opts) {
+    const el = document.createElement("div");
+    el.className = "dial" + (opts.unused ? " unused" : "");
+    el.tabIndex = opts.unused ? -1 : 0;
+    el.setAttribute("role", "slider");
+    el.setAttribute("aria-label", opts.label);
+    const render = () => {
+      const unused = opts.getUnused ? opts.getUnused() : false;
+      el.classList.toggle("unused", unused);
+      el.tabIndex = unused ? -1 : 0;
+      const v = opts.get();
+      el.setAttribute("aria-valuemin", opts.min);
+      el.setAttribute("aria-valuemax", opts.max);
+      el.setAttribute("aria-valuenow", v == null ? opts.min : v);
+      el.setAttribute("aria-disabled", unused ? "true" : "false");
+      const face = opts.kind === "amp" || opts.kind === "guitar"
+        ? skirtKnobSVG(unused ? null : v)
+        : pedalKnobSVG(v, opts.minLabel, opts.maxLabel);
+      const val = opts.kind === "amp" || opts.kind === "guitar"
+        ? (unused ? "–" : ampLabel(v))
+        : clockLabel(v, opts.minLabel, opts.maxLabel);
+      el.innerHTML = face + `<div class="val">${val}</div><div class="lab">${opts.label}</div>`;
+    };
+    el._render = render;
+    attachDrag(el, opts, render);
+    render();
+    return el;
+  }
+
+  function snap(v, min, max, step) {
+    const n = Math.round((v - min) / step) * step + min;
+    const clamped = Math.min(max, Math.max(min, n));
+    const prec = step < 1 ? 10 : 1;
+    return Math.round(clamped * prec) / prec;
+  }
+
+  function attachDrag(el, opts, render) {
+    let startY = 0;
+    let startV = 0;
+    const onMove = (ev) => {
+      if (opts.getUnused && opts.getUnused()) return;
+      const y = ev.clientY;
+      const delta = (startY - y) / 4; // up increases
+      const next = snap(startV + delta * (opts.step || 1), opts.min, opts.max, opts.step || 1);
+      if (next !== opts.get()) {
+        opts.set(next);
+        render();
+      }
+    };
+    const onUp = (ev) => {
+      el.releasePointerCapture(ev.pointerId);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointercancel", onUp);
+    };
+    el.addEventListener("pointerdown", (ev) => {
+      if (opts.getUnused && opts.getUnused()) return;
+      ev.preventDefault();
+      el.setPointerCapture(ev.pointerId);
+      startY = ev.clientY;
+      startV = opts.get() == null ? opts.min : opts.get();
+      el.addEventListener("pointermove", onMove);
+      el.addEventListener("pointerup", onUp);
+      el.addEventListener("pointercancel", onUp);
+    });
+    el.addEventListener("keydown", (ev) => {
+      if (opts.getUnused && opts.getUnused()) return;
+      const step = opts.step || 1;
+      let v = opts.get() == null ? opts.min : opts.get();
+      if (ev.key === "ArrowUp" || ev.key === "ArrowRight") v = snap(v + step, opts.min, opts.max, step);
+      else if (ev.key === "ArrowDown" || ev.key === "ArrowLeft") v = snap(v - step, opts.min, opts.max, step);
+      else if (ev.key === "Home") v = opts.min;
+      else if (ev.key === "End") v = opts.max;
+      else return;
+      ev.preventDefault();
+      opts.set(v);
+      render();
+    });
+  }
+
+  function makeFader(opts) {
+    const el = document.createElement("div");
+    el.className = "fader" + (opts.level ? " level" : "");
+    const track = document.createElement("div");
+    track.className = "track";
+    track.setAttribute("role", "slider");
+    track.setAttribute("aria-label", opts.label);
+    track.tabIndex = 0;
+    const ticks = document.createElement("div");
+    ticks.className = "ticks";
+    ticks.innerHTML = [-15, -10, -5, 0, 5, 10, 15].map((d) => {
+      const y = ((15 - d) / 30) * 140;
+      return `<div style="position:absolute;left:-8px;top:${y}px;width:6px;height:${d === 0 ? 2 : 1}px;background:#4a3d10"></div>`;
+    }).join("");
+    const cap = document.createElement("div");
+    cap.className = "cap";
+    cap.innerHTML = "<i></i>";
+    track.append(ticks, cap);
+    const lab = document.createElement("div");
+    lab.className = "flab";
+    lab.textContent = opts.label;
+    const val = document.createElement("div");
+    val.className = "fval";
+    el.append(lab, track, val);
+
+    const render = () => {
+      const v = opts.get();
+      const y = ((15 - v) / 30) * 140;
+      cap.style.top = y + "px";
+      val.textContent = dbLabel(v);
+      track.setAttribute("aria-valuemin", -15);
+      track.setAttribute("aria-valuemax", 15);
+      track.setAttribute("aria-valuenow", v);
+    };
+
+    const setFromY = (clientY) => {
+      const r = track.getBoundingClientRect();
+      const t = (clientY - r.top) / r.height;
+      const v = snap(15 - t * 30, -15, 15, 1);
+      opts.set(v);
+      render();
+    };
+
+    track.addEventListener("pointerdown", (ev) => {
+      ev.preventDefault();
+      track.setPointerCapture(ev.pointerId);
+      setFromY(ev.clientY);
+      const move = (e) => setFromY(e.clientY);
+      const up = (e) => {
+        track.releasePointerCapture(e.pointerId);
+        track.removeEventListener("pointermove", move);
+        track.removeEventListener("pointerup", up);
+      };
+      track.addEventListener("pointermove", move);
+      track.addEventListener("pointerup", up);
+    });
+    track.addEventListener("keydown", (ev) => {
+      let v = opts.get();
+      if (ev.key === "ArrowUp" || ev.key === "ArrowRight") v = snap(v + 1, -15, 15, 1);
+      else if (ev.key === "ArrowDown" || ev.key === "ArrowLeft") v = snap(v - 1, -15, 15, 1);
+      else if (ev.key === "Home") v = -15;
+      else if (ev.key === "End") v = 15;
+      else return;
+      ev.preventDefault();
+      opts.set(v);
+      render();
+    });
+
+    el._render = render;
+    render();
+    return el;
+  }
+
+  // ---------- UI builders ----------
+  function renderGuitarPicks() {
+    const root = document.getElementById("guitar-picks");
+    root.innerHTML = "";
+    GUITARS.forEach((g) => {
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.type = "button";
+      b.textContent = g.name;
+      b.setAttribute("aria-pressed", g.id === state.guitarId ? "true" : "false");
+      b.addEventListener("click", () => {
+        if (g.id === state.guitarId) return;
+        state.guitarId = g.id;
+        const first = g.pickups[0];
+        state.guitar.pickup = first.id;
+        markDirty();
+        refreshAll();
+      });
+      root.append(b);
+    });
+  }
+
+  function renderPresets() {
+    const root = document.getElementById("presets");
+    root.innerHTML = "";
+    allPresets().forEach((p) => {
+      const b = document.createElement("button");
+      b.className = "preset-card" + (p.custom ? " custom" : "");
+      b.type = "button";
+      b.setAttribute("role", "option");
+      b.setAttribute("aria-pressed", p.id === state.presetId ? "true" : "false");
+      b.innerHTML = `<div class="name">${escapeHtml(p.name)}${p.custom ? " · custom" : ""}</div><p class="vibe">${escapeHtml(p.vibe || "Your saved settings.")}</p>`;
+      b.addEventListener("click", () => {
+        applyPreset(p);
+        refreshAll();
+      });
+      root.append(b);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function renderChain() {
+    const items = [
+      { label: guitarById(state.guitarId).name, on: true },
+      { label: "Graphic EQ", on: state.eq.on },
+      { label: "Analog delay", on: state.delay.on },
+      { label: state.reverb.type === "plate" ? "Plate reverb" : "Spring reverb", on: state.reverb.on },
+      { label: "Deluxe Reverb · " + (state.amp.channel === "normal" ? "Normal" : "Vibrato"), on: true }
+    ];
+    const root = document.getElementById("chain");
+    root.innerHTML = items.map((it, i) => {
+      const arrow = i < items.length - 1 ? `<span class="chain-arrow">→</span>` : "";
+      return `<div class="chain-item${it.on ? "" : " off"}"><span class="dot"></span>${escapeHtml(it.label)}</div>${arrow}`;
+    }).join("");
+  }
+
+  function renderWhy() {
+    const p = currentPreset();
+    document.getElementById("why-text").textContent = state.dirty
+      ? "You've changed this from the preset. The chain order is still guitar → EQ → delay → reverb → amp. Reset below if you want the starting point back."
+      : (state._why || (p && p.why) || "");
+    const stacking = state.reverb.on && state.amp.channel === "vibrato" && (state.amp.vibrato.reverb || 1) > 1
+      && !state._unusedVibrato;
+    const warn = document.getElementById("stack-warn");
+    warn.hidden = !stacking;
+  }
+
+  function renderGuitar() {
+    const g = guitarById(state.guitarId);
+    document.getElementById("guitar-title").textContent = g.name;
+    const sw = document.getElementById("pickup-switch");
+    sw.innerHTML = "";
+    g.pickups.forEach((pk) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = pk.label;
+      b.setAttribute("aria-pressed", state.guitar.pickup === pk.id ? "true" : "false");
+      b.addEventListener("click", () => {
+        state.guitar.pickup = pk.id;
+        markDirty();
+        renderGuitar();
+        renderChain();
+      });
+      sw.append(b);
+    });
+    const knobs = document.getElementById("guitar-knobs");
+    knobs.innerHTML = "";
+    g.knobs.forEach((k) => {
+      knobs.append(makeDial({
+        kind: "guitar",
+        label: k.label,
+        min: k.min, max: k.max, step: k.step,
+        get: () => state.guitar[k.id],
+        set: (v) => { state.guitar[k.id] = v; markDirty(); }
+      }));
+    });
+  }
+
+  function renderEQ() {
+    const sec = document.getElementById("sec-eq");
+    sec.classList.toggle("bypassed", !state.eq.on);
+    const btn = document.getElementById("eq-bypass");
+    btn.textContent = state.eq.on ? "On" : "Bypass";
+    btn.classList.toggle("on", state.eq.on);
+    btn.setAttribute("aria-pressed", state.eq.on ? "true" : "false");
+    const face = document.getElementById("eq-face");
+    face.innerHTML = "";
+    const row = document.createElement("div");
+    row.className = "faders";
+    EQ_BANDS.forEach((lab, i) => {
+      row.append(makeFader({
+        label: lab,
+        get: () => state.eq.bands[i],
+        set: (v) => { state.eq.bands[i] = v; markDirty(); }
+      }));
+    });
+    row.append(makeFader({
+      label: "Level",
+      level: true,
+      get: () => state.eq.level,
+      set: (v) => { state.eq.level = v; markDirty(); }
+    }));
+    face.append(row);
+  }
+
+  function renderDelay() {
+    const sec = document.getElementById("sec-delay");
+    sec.classList.toggle("bypassed", !state.delay.on);
+    const btn = document.getElementById("delay-bypass");
+    btn.textContent = state.delay.on ? "On" : "Bypass";
+    btn.classList.toggle("on", state.delay.on);
+    btn.setAttribute("aria-pressed", state.delay.on ? "true" : "false");
+    const root = document.getElementById("delay-knobs");
+    root.innerHTML = "";
+    [
+      { id: "time", label: "Time" },
+      { id: "mix", label: "Mix" },
+      { id: "repeats", label: "Repeats" }
+    ].forEach((k) => {
+      root.append(makeDial({
+        kind: "pedal",
+        label: k.label,
+        min: CLOCK_MIN, max: CLOCK_MAX, step: 0.5,
+        get: () => state.delay[k.id],
+        set: (v) => { state.delay[k.id] = v; markDirty(); }
+      }));
+    });
+  }
+
+  function renderReverb() {
+    const sec = document.getElementById("sec-reverb");
+    sec.classList.toggle("bypassed", !state.reverb.on);
+    sec.classList.toggle("plate", state.reverb.type === "plate");
+    document.getElementById("reverb-title").textContent =
+      state.reverb.type === "plate" ? "Plate reverb" : "Spring reverb";
+    const btn = document.getElementById("reverb-bypass");
+    btn.textContent = state.reverb.on ? "On" : "Bypass";
+    btn.classList.toggle("on", state.reverb.on);
+    btn.setAttribute("aria-pressed", state.reverb.on ? "true" : "false");
+    document.querySelectorAll("#reverb-type button").forEach((b) => {
+      b.setAttribute("aria-pressed", b.dataset.type === state.reverb.type ? "true" : "false");
+    });
+    const root = document.getElementById("reverb-knobs");
+    root.innerHTML = "";
+    [
+      { id: "mix", label: "Mix" },
+      { id: "tone", label: "Tone", minLabel: "LO", maxLabel: "HI" },
+      { id: "decay", label: "Decay" }
+    ].forEach((k) => {
+      root.append(makeDial({
+        kind: "pedal",
+        label: k.label,
+        min: CLOCK_MIN, max: CLOCK_MAX, step: 0.5,
+        minLabel: k.minLabel, maxLabel: k.maxLabel,
+        get: () => state.reverb[k.id],
+        set: (v) => { state.reverb[k.id] = v; markDirty(); }
+      }));
+    });
+  }
+
+  function unusedNormal() {
+    return state.amp.channel !== "normal";
+  }
+  function unusedVibrato() {
+    return state.amp.channel !== "vibrato";
+  }
+
+  function renderAmp() {
+    document.querySelectorAll("#channel-toggle button").forEach((b) => {
+      b.setAttribute("aria-pressed", b.dataset.ch === state.amp.channel ? "true" : "false");
+    });
+    const n = document.getElementById("ch-normal");
+    const v = document.getElementById("ch-vibrato");
+    n.classList.toggle("unused", unusedNormal());
+    v.classList.toggle("unused", unusedVibrato());
+    n.classList.toggle("active", !unusedNormal());
+    v.classList.toggle("active", !unusedVibrato());
+    n.querySelector(".ch-name").textContent = unusedNormal() ? "Normal · not used" : "Normal";
+    v.querySelector(".ch-name").textContent = unusedVibrato() ? "Vibrato · not used" : "Vibrato";
+
+    const nk = document.getElementById("normal-knobs");
+    nk.innerHTML = "";
+    ["volume", "treble", "bass"].forEach((id) => {
+      nk.append(makeDial({
+        kind: "amp",
+        label: id,
+        min: 1, max: 10, step: 0.5,
+        get: () => state.amp.normal[id],
+        set: (val) => {
+          const switched = unusedNormal();
+          if (switched) {
+            state.amp.channel = "normal";
+            state._unusedNormal = false;
+          }
+          state.amp.normal[id] = val;
+          markDirty();
+          if (switched) {
+            renderAmp();
+            syncChrome();
+          }
+        },
+        getUnused: unusedNormal
+      }));
+    });
+
+    const vk = document.getElementById("vibrato-knobs");
+    vk.innerHTML = "";
+    const vknobs = [
+      { id: "volume", label: "Volume" },
+      { id: "treble", label: "Treble" },
+      { id: "bass", label: "Bass" },
+      { id: "reverb", label: "Reverb" },
+      { id: "speed", label: "Speed" },
+      { id: "intensity", label: "Intensity" }
+    ];
+    vknobs.forEach((k) => {
+      const isTrem = k.id === "speed" || k.id === "intensity";
+      vk.append(makeDial({
+        kind: "amp",
+        label: k.label,
+        min: 1, max: 10, step: 0.5,
+        get: () => {
+          const val = state.amp.vibrato[k.id];
+          return val == null ? 1 : val;
+        },
+        set: (val) => {
+          const switched = unusedVibrato();
+          if (switched) {
+            state.amp.channel = "vibrato";
+            state._unusedVibrato = false;
+          }
+          if (isTrem) {
+            if (state.amp.vibrato.speed == null) state.amp.vibrato.speed = 1;
+            if (state.amp.vibrato.intensity == null) state.amp.vibrato.intensity = 1;
+          }
+          state.amp.vibrato[k.id] = val;
+          markDirty();
+          if (switched) {
+            renderAmp();
+            syncChrome();
+          }
+        },
+        getUnused: unusedVibrato
+      }));
+    });
+  }
+
+  function syncChrome() {
+    const p = currentPreset();
+    const isCustom = !!(p && p.custom);
+    document.getElementById("dirty-status").textContent = state.dirty
+      ? "Edited"
+      : (isCustom ? "Custom preset" : "Preset");
+    document.getElementById("btn-reset").disabled = !state.dirty;
+    document.getElementById("btn-delete").hidden = !isCustom;
+    renderChain();
+    renderWhy();
+    renderPresets();
+  }
+
+  function refreshAll() {
+    renderGuitarPicks();
+    renderPresets();
+    renderGuitar();
+    renderEQ();
+    renderDelay();
+    renderReverb();
+    renderAmp();
+    syncChrome();
+  }
+
+  // ---------- events ----------
+  document.getElementById("eq-bypass").addEventListener("click", () => {
+    state.eq.on = !state.eq.on;
+    markDirty();
+    renderEQ();
+    syncChrome();
+  });
+  document.getElementById("delay-bypass").addEventListener("click", () => {
+    state.delay.on = !state.delay.on;
+    markDirty();
+    renderDelay();
+    syncChrome();
+  });
+  document.getElementById("reverb-bypass").addEventListener("click", () => {
+    state.reverb.on = !state.reverb.on;
+    markDirty();
+    renderReverb();
+    syncChrome();
+  });
+  document.querySelectorAll("#reverb-type button").forEach((b) => {
+    b.addEventListener("click", () => {
+      state.reverb.type = b.dataset.type;
+      markDirty();
+      renderReverb();
+      syncChrome();
+    });
+  });
+  document.querySelectorAll("#channel-toggle button").forEach((b) => {
+    b.addEventListener("click", () => {
+      state.amp.channel = b.dataset.ch;
+      if (b.dataset.ch === "normal") state._unusedNormal = false;
+      else state._unusedVibrato = false;
+      markDirty();
+      renderAmp();
+      syncChrome();
+    });
+  });
+
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    const p = currentPreset();
+    if (p) applyPreset(p);
+    refreshAll();
+  });
+
+  const dialog = document.getElementById("save-dialog");
+  document.getElementById("btn-save").addEventListener("click", () => {
+    const p = currentPreset();
+    document.getElementById("save-name").value = (p && p.custom && !PRESETS.some((x) => x.id === p.id)) ? p.name : "";
+    dialog.showModal();
+    document.getElementById("save-name").focus();
+  });
+  document.getElementById("save-cancel").addEventListener("click", () => dialog.close());
+  document.getElementById("save-form").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const name = document.getElementById("save-name").value.trim();
+    if (!name) return;
+    const customs = loadCustoms();
+    const existing = currentPreset();
+    const overwrite = existing && existing.custom && existing.name === name;
+    const rec = {
+      id: overwrite ? existing.id : "custom-" + Date.now(),
+      name,
+      vibe: "Your saved settings.",
+      custom: true,
+      why: "A custom preset saved in this browser.",
+      ...snapshotFromState()
+    };
+    const next = overwrite
+      ? customs.map((c) => (c.id === rec.id ? rec : c))
+      : customs.concat([rec]);
+    saveCustoms(next);
+    applyPreset(rec);
+    dialog.close();
+    refreshAll();
+  });
+
+  document.getElementById("btn-delete").addEventListener("click", () => {
+    const p = currentPreset();
+    if (!p || !p.custom) return;
+    saveCustoms(loadCustoms().filter((c) => c.id !== p.id));
+    applyPreset(PRESETS[0]);
+    refreshAll();
+  });
+
+  applyPreset(PRESETS[0]);
+  refreshAll();
+})();
+</script>
+</body>
+</html>
